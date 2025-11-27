@@ -1,0 +1,12 @@
+.loginbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    padding: 10%; 
+}
+.logininfo {
+    display: flex;
+    padding: 60px;
+    flex-direction: column;
+    gap: 20px; 
+}

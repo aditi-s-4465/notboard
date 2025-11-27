@@ -1,0 +1,43 @@
+import React, { useState } from "react";
+import { Card, TextField, Button } from '@mui/material';
+import './createaccount.css';
+import { createAccount } from "../../loginapi/auth";
+
+function Createaccount() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordagain, setPasswordagain] = useState("");
+    const handleCreate = async () => {
+        if (!username || !password || !passwordagain) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        if (password !== passwordagain) {
+            alert("Passwords do not match."); 
+            return;
+        }
+
+        try {
+            await createAccount(username, password); 
+            alert("Account created!");
+        } catch (err: any) {
+            alert("Error creating account: " + err.message); 
+        }
+    };
+
+    return (
+        <div className="loginbox">
+            <Card variant="outlined" className="logininfo"> 
+                <h1>Login to Not Board</h1>
+
+                <TextField label="Username" variant="outlined" required value={username} onChange={(e) => setUsername(e.target.value)}/>
+                <TextField label="Password" type="password" variant="outlined" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                <TextField label="Password again" type="passwordagain" variant="outlined" required value={passwordagain} onChange={(e) => setPasswordagain(e.target.value)} />
+                <Button variant="contained" onClick={handleCreate}> Create Account </Button>
+            </Card>
+        </div>
+    );
+}
+
+export default Createaccount;
