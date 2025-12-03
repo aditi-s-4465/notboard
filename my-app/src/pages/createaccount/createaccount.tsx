@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Card, TextField, Button } from '@mui/material';
 import './createaccount.css';
 import { createAccount } from "../../loginapi/auth";
-
+import { useNavigate } from "react-router-dom";
 function Createaccount() {
+    const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordagain, setPasswordagain] = useState("");
@@ -20,7 +21,7 @@ function Createaccount() {
 
         try {
             await createAccount(username, password); 
-            alert("Account created!");
+            navigate("addcollection")
         } catch (err: any) {
             alert("Error creating account: " + err.message); 
         }

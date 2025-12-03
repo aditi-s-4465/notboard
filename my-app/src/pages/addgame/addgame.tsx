@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import { Card, TextField, Button, Alert } from '@mui/material';
-import './showcollection.css';
+import './addgame.css';
 import { useNavigate } from "react-router-dom";
 
 
-function Showcollection() {
+function Addgame() {
     const navigate = useNavigate();
     return (
         <div>
-            <Button variant="contained" onClick={() => navigate("addgame")}> Create Account </Button>
         </div>
     );
 }
 
-export default Showcollection;
+export default Addgame;
