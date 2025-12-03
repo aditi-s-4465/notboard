@@ -1,0 +1,111 @@
+/* Container spacing */
+.show-collection-root {
+  padding-top: 16px;
+  padding-bottom: 32px;
+}
+
+/* Two-column layout */
+.show-layout {
+  display: flex;
+  margin-top: 24px;
+  min-height: 60vh;
+}
+
+/* Sidebar */
+.show-sidebar {
+  width: 220px;
+  margin-right: 24px;
+  padding-right: 16px;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.show-sidebar-title {
+  margin-bottom: 8px;
+}
+
+.show-sidebar-code {
+  line-height: 1.7;
+}
+
+.show-back-button {
+  margin-top: 24px;
+  padding-left: 0;
+  justify-content: flex-start;
+}
+
+/* Main column */
+.show-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* important for inner flex scrolling */
+}
+
+/* Empty state */
+.show-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* search + table */
+.show-main-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.show-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.show-search-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+/*scrollable table region */
+.show-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.show-table-paper {
+  min-width: 600px;
+}
+
+/*recommendations anchored to bottom */
+.show-main-bottom {
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+
+.show-reco-title {
+  margin-bottom: 8px;
+}
+
+.show-reco-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.show-reco-card {
+  width: 160px;
+}
+
+.show-reco-add-wrapper {
+  display: flex;
+  justify-content: center;
+}
