@@ -8,7 +8,7 @@ function Choosecollection() {
     const navigate = useNavigate();
     return (
         <div>
-            <Button variant="contained" onClick={() => navigate("showcollection")}>TEMP BUTTON TO NAVIGATE TO SHOW COLLECTION </Button>
+            <Button variant="contained" onClick={() => navigate("/showcollection")}>TEMP BUTTON TO NAVIGATE TO SHOW COLLECTION </Button>
         </div>
     );
 }
