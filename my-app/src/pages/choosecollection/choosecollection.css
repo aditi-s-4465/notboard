@@ -1,0 +1,119 @@
+/* Root container under the AppBar */
+.choose-collection-root {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+  padding-top: 16px;
+  padding-bottom: 32px;
+}
+
+/* Centered main content */
+.choose-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.choose-title {
+  margin-bottom: 4px;
+}
+
+.choose-description {
+  margin-bottom: 32px;
+  margin-bottom: 56px;
+  text-align: center;
+  max-width: 420px;
+}
+
+/* Row of collection cards */
+.collection-cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 0; 
+}
+
+/* Collection cards */
+.collection-card {
+  width: 160px;
+  height: 160px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+}
+
+.collection-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Card internals */
+.collection-card-action {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.collection-card-content {
+  padding: 8px !important;
+}
+
+.collection-card-title {
+  font-weight: 600 !important;
+}
+
+.collection-card-code {
+  margin-top: 4px;
+}
+
+/* "+" card inner layout */
+.collection-new-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.choose-dialog-paper {
+  min-width: 360px;
+}
+
+.choose-dialog-title {
+  padding-bottom: 0 !important;
+}
+
+.choose-dialog-title-row {
+  display: flex;
+  align-items: center;
+}
+
+.choose-dialog-close-button {
+  margin-right: 8px;
+  color: #f44336; 
+}
+
+.choose-dialog-content {
+  padding-top: 16px !important;
+  padding-bottom: 8px !important;
+}
+
+.choose-dialog-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choose-dialog-divider {
+  margin: 8px 0 !important;
+}
+
+.choose-dialog-actions {
+  padding: 0 24px 16px 24px !important;
+}
