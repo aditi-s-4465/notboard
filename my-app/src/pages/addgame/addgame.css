@@ -15,4 +15,16 @@
     overflow: hidden;
 }
 
-
+.blur-dialog .MuiBackdrop-root {
+    backdrop-filter: blur(6px);
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+.MuiDialog-paper {
+border-radius: 12px;
+}
+.back-button {
+    margin-bottom: 20px;
+    background-color: #f5f5f5;
+    color: #333;
+    text-transform: none;
+}
