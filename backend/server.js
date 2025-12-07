@@ -22,7 +22,7 @@ mongoose
 
 // Root test route
 app.get("/", (req, res) => {
-  res.send("Backend is running!");
+  res.send("Backend is running!!!");
 });
 
 // Mount /api routes

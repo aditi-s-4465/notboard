@@ -4,6 +4,17 @@ import Game from "../models/Game.js";
 
 const router = express.Router();
 
+// GET all games
+router.get('/', async (req, res) => {
+  try {
+    const games = await Game.find();
+    res.json(games);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // GET /api/games/:id  -> by Mongo _id
 router.get("/:id", async (req, res) => {
   try {
@@ -43,5 +54,17 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch game" });
   }
 });
+
+// Get games with filters
+router.get('/filter', async (req, res) => {
+  try {
+    const filters = req.query;
+    const games = await Game.find(filters);
+    res.json(games);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;

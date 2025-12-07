@@ -4,6 +4,49 @@ import Game from "../models/Game.js";
 
 const router = express.Router();
 
+// ADD a new collection
+// POST /api/collections/
+router.post('/', async (req, res) => {
+  try {
+    const { name, owner } = req.body;
+
+    // Create collection (empty games list by default)
+    const newCollection = new Collection({
+      name: name || "Untitled Collection",
+      owner: owner || null,
+      games: []
+    });
+
+    await newCollection.save();
+    res.status(201).json(newCollection);
+
+  } catch (err) {
+    console.error("Error creating collection:", err);
+    res.status(500).json({ error: "Failed to create collection" });
+  }
+});
+
+// GET a collection by ID
+// GET /api/collections/:collectionId
+router.get('/:collectionId', async (req, res) => {
+  try {
+    const { collectionId } = req.params;
+
+    const collection = await Collection.findById(collectionId)
+      .populate("games.game");
+
+    if (!collection) {
+      return res.status(404).json({ error: "Collection not found" });
+    }
+
+    res.json(collection);
+
+  } catch (err) {
+    console.error("Error retrieving collection:", err);
+    res.status(500).json({ error: "Failed to retrieve collection" });
+  }
+});
+
 // ADD game to collection
 // POST /api/collections/:collectionId/games
 router.post('/:collectionId/games', async (req, res) => {
