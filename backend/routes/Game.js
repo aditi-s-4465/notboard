@@ -7,8 +7,24 @@ const router = express.Router();
 // GET all games
 router.get('/', async (req, res) => {
   try {
-    const games = await Game.find();
-    res.json(games);
+    const game = await Game.find().select({
+        Name: 1,
+        Description: 1,
+        AvgRating: 1,
+        MinPlayers: 1,
+        MaxPlayers: 1,
+        ImagePath: 1,
+        "Cat:Thematic": 1,
+        "Cat:Strategy": 1,
+        "Cat:War": 1,
+        "Cat:Family": 1,
+        "Cat:CGS": 1,
+        "Cat:Abstract": 1,
+        "Cat:Party": 1,
+        "Cat:Childrens": 1,
+    });
+    console.log("All Games found");
+    res.json(game);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
