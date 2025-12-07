@@ -15,7 +15,22 @@ router.get("/:id", async (req, res) => {
       return res.status(400).json({ error: "Invalid game id format" });
     }
 
-    const game = await Game.findById(id);
+    const game = await Game.findById(id).select({
+        Name: 1,
+        Description: 1,
+        AvgRating: 1,
+        MinPlayers: 1,
+        MaxPlayers: 1,
+        ImagePath: 1,
+        "Cat:Thematic": 1,
+        "Cat:Strategy": 1,
+        "Cat:War": 1,
+        "Cat:Family": 1,
+        "Cat:CGS": 1,
+        "Cat:Abstract": 1,
+        "Cat:Party": 1,
+        "Cat:Childrens": 1,
+    });
     console.log("Game found:", game);
 
     if (!game) {
