@@ -26,7 +26,7 @@ function Login() {
             await login(email, password);
             setErr(false);
             setErrormsg("");
-            navigate("choosecollection")
+            navigate("/choosecollection")
         } catch (err: any) {
             setErr(true);
             setErrormsg("Enter correct email or password");
