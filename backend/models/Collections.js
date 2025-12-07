@@ -12,8 +12,7 @@ const collectionSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
-    ownerEmail: { type: String },
-    members: [{ type: String }],
+    members: [{ type: String }], //emails
     games: [collectionGameSchema],
   },
   { timestamps: true }
