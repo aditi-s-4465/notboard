@@ -23,7 +23,7 @@ function Createaccount() {
 
         try {
             await createAccount(email, password); 
-            navigate("addcollection")
+            navigate("/choosecollection")
         } catch (err: any) {
             alert("Error creating account: " + err.message); 
         }
