@@ -1,17 +1,14 @@
-/* Container spacing */
 .show-collection-root {
   padding-top: 16px;
   padding-bottom: 32px;
 }
 
-/* Two-column layout */
 .show-layout {
   display: flex;
   margin-top: 24px;
   min-height: 60vh;
 }
 
-/* Sidebar */
 .show-sidebar {
   width: 220px;
   margin-right: 24px;
@@ -23,27 +20,24 @@
 
 .show-sidebar-title {
   margin-bottom: 8px;
+  font-weight: bold;
 }
 
 .show-sidebar-code {
   line-height: 1.7;
 }
 
-.show-back-button {
-  margin-top: 24px;
-  padding-left: 0;
-  justify-content: flex-start;
+/* Navbar Styles */
+.navbar-title {
+  flex-grow: 1;
+  font-weight: bold !important;
 }
 
-/* Main column */
-.show-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0; /* important for inner flex scrolling */
+.navbar-back-btn {
+  margin-right: 16px !important;
 }
 
-/* Empty state */
+/* Empty State Styles */
 .show-empty {
   flex: 1;
   display: flex;
@@ -52,7 +46,21 @@
   justify-content: center;
 }
 
-/* search + table */
+.empty-alert {
+  margin-top: 24px !important;
+}
+
+.empty-back-btn {
+  margin-top: 16px !important;
+}
+
+.show-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .show-main-top {
   flex: 1;
   display: flex;
@@ -60,21 +68,51 @@
   min-height: 0;
 }
 
-.show-search-row {
+.filter-bar-container {
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.stack-full-width {
+  width: 100%;
+}
+
+.filter-box-search {
+  flex: 2;
+  width: 100%;
+}
+
+.filter-box-genre {
+  flex: 1;
+  width: 100%;
+}
+
+.filter-box-number {
+  flex: 0.5;
+  width: 100%;
+  min-width: 80px;
+}
+
+.filter-box-button {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  width: 100%;
 }
 
-.show-search-icon-wrapper {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 8px;
+.filter-input-bg {
+  background-color: white;
 }
 
-/*scrollable table region */
+.add-game-button {
+  text-transform: none !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .show-table-wrapper {
   flex: 1;
   overflow-y: auto;
@@ -84,14 +122,51 @@
   min-width: 600px;
 }
 
-/*recommendations anchored to bottom */
+.styled-table-header-cell {
+  font-weight: bold !important;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.game-name-link {
+  font-weight: 600 !important;
+  color: #1976d2 !important; 
+  text-transform: none !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  justify-content: flex-start !important;
+}
+
+.game-name-link:hover {
+  text-decoration: underline !important;
+  background-color: transparent !important;
+}
+
+.genre-chip {
+  background-color: #e3f2fd !important;
+  color: #1565c0 !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+}
+
+.delete-icon-btn {
+  color: rgba(0, 0, 0, 0.26) !important;
+}
+
+.delete-icon-btn:hover {
+  color: #d32f2f !important;
+  background-color: rgba(211, 47, 47, 0.04) !important;
+}
+
+/*rec*/
 .show-main-bottom {
-  margin-top: 24px;
+  margin-top: 32px;
   flex-shrink: 0;
 }
 
 .show-reco-title {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .show-reco-row {
@@ -103,6 +178,21 @@
 
 .show-reco-card {
   width: 160px;
+}
+
+.reco-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.reco-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: #1976d2;
+}
+
+.reco-card-text {
+  margin-bottom: 8px !important;
+  font-weight: bold !important;
 }
 
 .show-reco-add-wrapper {

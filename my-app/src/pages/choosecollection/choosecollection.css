@@ -1,4 +1,3 @@
-/* Root container under the AppBar */
 .choose-collection-root {
   display: flex;
   flex-direction: column;
@@ -7,14 +6,12 @@
   padding-bottom: 32px;
 }
 
-/* Centered main content */
 .choose-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  
 }
 
 .choose-title {
@@ -22,13 +19,11 @@
 }
 
 .choose-description {
-  margin-bottom: 32px;
   margin-bottom: 56px;
   text-align: center;
   max-width: 420px;
 }
 
-/* Row of collection cards */
 .collection-cards-row {
   display: flex;
   flex-wrap: wrap;
@@ -37,7 +32,6 @@
   margin-top: 0; 
 }
 
-/* Collection cards */
 .collection-card {
   width: 160px;
   height: 160px;
@@ -51,7 +45,6 @@
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Card internals */
 .collection-card-action {
   height: 100%;
   width: 100%;
@@ -116,4 +109,13 @@
 
 .choose-dialog-actions {
   padding: 0 24px 16px 24px !important;
+}
+
+.navbar-title {
+  flex-grow: 1;
+  font-weight: bold !important;
+}
+
+.error-alert {
+  margin-bottom: 16px !important;
 }

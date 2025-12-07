@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -16,14 +16,28 @@ import {
   Card,
   CardContent,
   Alert,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  Chip,
+  Stack,
+  Box
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DeleteIcon from "@mui/icons-material/Delete";
+import LogoutIcon from "@mui/icons-material/Logout";
 import "./showcollection.css";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/useappcontext";
+import GameDetailsModal from "../gamedetails/gamedetails";
 
 type Game = {
   id: string;
@@ -35,34 +49,11 @@ type Game = {
   averageRating: number;
 };
 
+// Initial Data
 const ALL_GAMES: Game[] = [
-  {
-    id: "pollen",
-    name: "Pollen",
-    minPlayers: 2,
-    maxPlayers: 4,
-    genre: "Strategy",
-    ownedBy: "Aditi",
-    averageRating: 8.3,
-  },
-  {
-    id: "funemployed",
-    name: "Funemployed",
-    minPlayers: 2,
-    maxPlayers: 8,
-    genre: "Party",
-    ownedBy: "Rose",
-    averageRating: 7.1,
-  },
-  {
-    id: "werewolf",
-    name: "Werewolf",
-    minPlayers: 4,
-    maxPlayers: 7,
-    genre: "Social Deduction",
-    ownedBy: "Erica",
-    averageRating: 7.8,
-  },
+  { id: "pollen", name: "Pollen", minPlayers: 2, maxPlayers: 4, genre: "Strategy", ownedBy: "Aditi", averageRating: 8.3 },
+  { id: "funemployed", name: "Funemployed", minPlayers: 2, maxPlayers: 8, genre: "Party", ownedBy: "Rose", averageRating: 7.1 },
+  { id: "werewolf", name: "Werewolf", minPlayers: 4, maxPlayers: 7, genre: "Social Deduction", ownedBy: "Erica", averageRating: 7.8 },
 ];
 
 const gamesByCollection: { [name: string]: Game[] } = {
@@ -76,155 +67,228 @@ const recommendations = ["Splendor", "Codenames", "Azul"];
 
 const Showcollection: React.FC = () => {
   const navigate = useNavigate();
-  const { collection } = useAppContext();
+  const { collection, setSelectedGameName, setEmail, setCollection } = useAppContext();
+  
+  const [currentGames, setCurrentGames] = useState<Game[]>([]);
+
+  useEffect(() => {
+    if (collection) {
+      setCurrentGames(gamesByCollection[collection] ?? []);
+    }
+  }, [collection]);
+
   const [search, setSearch] = useState("");
+  const [genreFilter, setGenreFilter] = useState("All");
+  const [minPlayers, setMinPlayers] = useState<number | "">("");
+  const [maxPlayers, setMaxPlayers] = useState<number | "">("");
+
+  const [showDetails, setShowDetails] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [gameToDelete, setGameToDelete] = useState<string | null>(null);
+
+  const handleOpenDetails = (gameName: string) => {
+    setSelectedGameName(gameName);
+    setShowDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setSelectedGameName("");
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setGameToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (gameToDelete) {
+      setCurrentGames((prev) => prev.filter((g) => g.id !== gameToDelete));
+    }
+    setDeleteDialogOpen(false);
+    setGameToDelete(null);
+  };
+
+  const handleLogout = () => {
+    setEmail("");
+    setCollection("");
+    navigate("/");
+  };
 
   if (!collection) {
     return (
-      <>
-        <AppBar position="static" color="default" elevation={1}>
-          <Toolbar>
-            <Typography variant="h6">Not Board</Typography>
-          </Toolbar>
-        </AppBar>
-        <Container maxWidth="md" className="show-collection-root">
-          <Typography variant="h5" gutterBottom>
-            No collection selected
-          </Typography>
-          <Alert severity="info" style={{ marginBottom: 16 }}>
-            Please go back and choose a collection first.
-          </Alert>
-          <Button variant="outlined" onClick={() => navigate("/choosecollection")}>
-            Back to collections
-          </Button>
-        </Container>
-      </>
+      <Container maxWidth="md" className="show-collection-root">
+        <Alert severity="info" className="empty-alert">Please go back and choose a collection first.</Alert>
+        <Button variant="outlined" onClick={() => navigate("/choosecollection")} className="empty-back-btn">Back</Button>
+      </Container>
     );
   }
 
-  const gamesInCollection = gamesByCollection[collection] ?? [];
-  const hasGames = gamesInCollection.length > 0;
+  const hasGames = currentGames.length > 0;
 
-  const filteredGames = gamesInCollection.filter((game) => {
-    const q = search.toLowerCase();
-    return (
-      game.name.toLowerCase().includes(q) ||
-      game.genre.toLowerCase().includes(q) ||
-      game.ownedBy.toLowerCase().includes(q)
-    );
+  const filteredGames = currentGames.filter((game) => {
+    const matchesSearch =
+      game.name.toLowerCase().includes(search.toLowerCase()) ||
+      game.ownedBy.toLowerCase().includes(search.toLowerCase());
+    
+    const matchesGenre = genreFilter === "All" || game.genre.includes(genreFilter);
+    const matchesMin = minPlayers === "" || game.minPlayers >= minPlayers;
+    const matchesMax = maxPlayers === "" || game.maxPlayers <= maxPlayers;
+
+    return matchesSearch && matchesGenre && matchesMin && matchesMax;
   });
 
   return (
     <>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          <Typography variant="h6">Not Board</Typography>
+          <Typography variant="h6" className="navbar-title">Not Board</Typography>
+          <Button color="inherit" onClick={() => navigate("/choosecollection")} className="navbar-back-btn">
+            Back to Collections
+          </Button>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+            Log Out
+          </Button>
         </Toolbar>
       </AppBar>
 
       <Container maxWidth="lg" className="show-collection-root">
         <div className="show-layout">
-          {/* Sidebar */}
           <aside className="show-sidebar">
-            <Typography variant="h6" className="show-sidebar-title">
-              {collection}
-            </Typography>
-
+            <Typography variant="h6" className="show-sidebar-title">{collection}</Typography>
             {sidebarCodes.map((code) => (
-              <Typography
-                key={code}
-                variant="body2"
-                color="text.secondary"
-                className="show-sidebar-code"
-              >
-                {code}
-              </Typography>
+              <Typography key={code} variant="body2" color="text.secondary" className="show-sidebar-code">{code}</Typography>
             ))}
-
-            <Button
-              size="small"
-              variant="text"
-              startIcon={<ArrowBackIcon fontSize="small" />}
-              className="show-back-button"
-              onClick={() => navigate("/choosecollection")}
-            >
-              Back to collections
-            </Button>
           </aside>
 
-          {/* Main column */}
           <main className="show-main">
             {!hasGames ? (
               <div className="show-empty">
-                <Typography variant="h5" gutterBottom>
-                  No Games In Collection
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  style={{ marginBottom: 16 }}
-                >
-                  Add your first game to start building this collection.
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate("/addgame")}
-                >
-                  Add Game
+                <Typography variant="h5" gutterBottom>No Games In Collection</Typography>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate("/addgame")} size="large">
+                  Add Your First Game
                 </Button>
               </div>
             ) : (
               <>
-                {/* TOP: search + scrollable table */}
                 <div className="show-main-top">
-                  <div className="show-search-row">
-                    <TextField
-                      size="small"
-                      placeholder="Search games"
-                      fullWidth
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <span className="show-search-icon-wrapper">
-                            <SearchIcon fontSize="small" />
-                          </span>
-                        ),
-                      }}
-                    />
-                    <IconButton aria-label="filter">
-                      <FilterListIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="add game"
-                      onClick={() => navigate("/addgame")}
+                  
+                  <Paper elevation={0} className="filter-bar-container">
+                    <Stack 
+                      direction={{ xs: 'column', md: 'row' }} 
+                      spacing={2} 
+                      alignItems="center"
+                      className="stack-full-width"
                     >
-                      <AddIcon />
-                    </IconButton>
-                  </div>
+                      <Box className="filter-box-search">
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="Search games or owners..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className="filter-input-bg"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon color="action" />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+
+                      <Box className="filter-box-genre">
+                        <FormControl fullWidth size="small" className="filter-input-bg">
+                          <InputLabel>Genre</InputLabel>
+                          <Select
+                            value={genreFilter}
+                            label="Genre"
+                            onChange={(e) => setGenreFilter(e.target.value)}
+                          >
+                            <MenuItem value="All">All Genres</MenuItem>
+                            <MenuItem value="Strategy">Strategy</MenuItem>
+                            <MenuItem value="Cozy">Cozy</MenuItem>
+                            <MenuItem value="Party">Party</MenuItem>
+                            <MenuItem value="Social Deduction">Social Deduction</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+
+                      <Box className="filter-box-number">
+                        <TextField
+                          label="Min"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={minPlayers}
+                          onChange={(e) => setMinPlayers(e.target.value === "" ? "" : Number(e.target.value))}
+                          className="filter-input-bg"
+                        />
+                      </Box>
+                      
+                      <Box className="filter-box-number">
+                        <TextField
+                          label="Max"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={maxPlayers}
+                          onChange={(e) => setMaxPlayers(e.target.value === "" ? "" : Number(e.target.value))}
+                          className="filter-input-bg"
+                        />
+                      </Box>
+
+                      <Box className="filter-box-button">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          startIcon={<AddIcon />}
+                          onClick={() => navigate("/addgame")}
+                          className="add-game-button"
+                        >
+                          Add Game
+                        </Button>
+                      </Box>
+                    </Stack>
+                  </Paper>
 
                   <div className="show-table-wrapper">
-                    <Paper className="show-table-paper">
-                      <Table size="small">
+                    <Paper className="show-table-paper" elevation={0} variant="outlined">
+                      <Table size="medium">
                         <TableHead>
                           <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell># of Players</TableCell>
-                            <TableCell>Genre</TableCell>
-                            <TableCell>Owned By</TableCell>
-                            <TableCell>Average Rating</TableCell>
+                            <TableCell className="styled-table-header-cell">Name</TableCell>
+                            <TableCell className="styled-table-header-cell">Players</TableCell>
+                            <TableCell className="styled-table-header-cell">Genre</TableCell>
+                            <TableCell className="styled-table-header-cell">Owned By</TableCell>
+                            <TableCell className="styled-table-header-cell">Rating</TableCell>
+                            <TableCell className="styled-table-header-cell" width={50}></TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {filteredGames.map((game) => (
-                            <TableRow key={game.id} hover>
-                              <TableCell>{game.name}</TableCell>
+                            <TableRow key={game.name} hover>
                               <TableCell>
-                                {game.minPlayers}-{game.maxPlayers}
+                                <Button 
+                                  onClick={() => handleOpenDetails(game.name)} 
+                                  className="game-name-link"
+                                  disableRipple
+                                >
+                                  {game.name}
+                                </Button>
                               </TableCell>
-                              <TableCell>{game.genre}</TableCell>
+                              <TableCell>{game.minPlayers}-{game.maxPlayers}</TableCell>
+                              <TableCell>
+                                <Chip label={game.genre} size="small" className="genre-chip" />
+                              </TableCell>
                               <TableCell>{game.ownedBy}</TableCell>
                               <TableCell>{game.averageRating}</TableCell>
+                              <TableCell>
+                                <IconButton size="small" className="delete-icon-btn" onClick={() => handleDeleteClick(game.id)}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -233,22 +297,15 @@ const Showcollection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* BOTTOM: recommendations anchored to bottom */}
                 <div className="show-main-bottom">
-                  <Typography variant="subtitle1" className="show-reco-title">
-                    Recommendations
-                  </Typography>
+                  <Typography variant="h6" className="show-reco-title">Recommended for you</Typography>
                   <div className="show-reco-row">
                     {recommendations.map((rec) => (
-                      <Card key={rec} className="show-reco-card">
+                      <Card key={rec} className="show-reco-card reco-card-hover" variant="outlined">
                         <CardContent>
-                          <Typography align="center" style={{ marginBottom: 8 }}>
-                            {rec}
-                          </Typography>
+                          <Typography align="center" className="reco-card-text">{rec}</Typography>
                           <div className="show-reco-add-wrapper">
-                            <IconButton size="small">
-                              <AddIcon fontSize="small" />
-                            </IconButton>
+                             <Button size="small" startIcon={<AddIcon />}>Add</Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -260,6 +317,19 @@ const Showcollection: React.FC = () => {
           </main>
         </div>
       </Container>
+      
+      <GameDetailsModal open={showDetails} onClose={handleCloseDetails} />
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Remove Game?</DialogTitle>
+        <DialogContent>
+          Are you sure you want to remove this game from the collection?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">Remove</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

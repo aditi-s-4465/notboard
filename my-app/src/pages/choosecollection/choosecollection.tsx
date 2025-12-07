@@ -15,9 +15,11 @@ import {
   Button,
   IconButton,
   Divider,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import LogoutIcon from "@mui/icons-material/Logout";
 import "./choosecollection.css";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/useappcontext";
@@ -36,7 +38,7 @@ const initialCollections: Collection[] = [
 
 const Choosecollection: React.FC = () => {
   const navigate = useNavigate();
-  const { setCollection } = useAppContext();
+  const { setCollection, setEmail } = useAppContext();
 
   const [collections, setCollections] =
     useState<Collection[]>(initialCollections);
@@ -44,36 +46,55 @@ const Choosecollection: React.FC = () => {
   const [joinCode, setJoinCode] = useState("");
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
+  
+  const [error, setError] = useState("");
 
   const handleSelectCollection = (col: Collection) => {
     setCollection(col.name);
     navigate("/showcollection");
   };
 
-  const handleOpenDialog = () => setDialogOpen(true);
+  const handleOpenDialog = () => {
+    setError("");
+    setDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setJoinCode("");
     setNewName("");
     setNewCode("");
+    setError("");
+  };
+
+  const handleLogout = () => {
+    setEmail(""); 
+    setCollection("");
+    navigate("/"); 
   };
 
   const handleAddCollection = () => {
-    if (!newName.trim() && !joinCode.trim()) return;
+    const nameInput = newName.trim();
+    const codeInput = joinCode.trim();
+    const newCodeInput = newCode.trim();
 
-    let name = newName.trim();
-    let code = newCode.trim();
+    if (!nameInput && !codeInput) {
+      setError("Please enter a Collection Name to create, or a Code to join.");
+      return;
+    }
 
-    if (!name && joinCode.trim()) {
-      name = `Collection ${collections.length + 1}`;
-      code = joinCode.trim();
+    let finalName = nameInput;
+    let finalCode = newCodeInput;
+
+    if (!finalName && codeInput) {
+      finalName = `Collection ${collections.length + 1}`;
+      finalCode = codeInput;
     }
 
     const newCollection: Collection = {
       id: `c-${Date.now()}`,
-      name,
-      code: code || "N/A",
+      name: finalName,
+      code: finalCode || "N/A",
     };
 
     setCollections((prev) => [...prev, newCollection]);
@@ -86,9 +107,12 @@ const Choosecollection: React.FC = () => {
     <>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          <Typography variant="h6" component="div">
+          <Typography variant="h6" component="div" className="navbar-title">
             Not Board
           </Typography>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+            Log Out
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -135,7 +159,6 @@ const Choosecollection: React.FC = () => {
               </Card>
             ))}
 
-            {/* "+" card */}
             <Card className="collection-card">
               <CardActionArea
                 className="collection-card-action"
@@ -174,6 +197,12 @@ const Choosecollection: React.FC = () => {
         </DialogTitle>
 
         <DialogContent className="choose-dialog-content">
+          {error && (
+            <Alert severity="error" className="error-alert">
+              {error}
+            </Alert>
+          )}
+
           <div className="choose-dialog-fields">
             <TextField
               label="Collection Code"
