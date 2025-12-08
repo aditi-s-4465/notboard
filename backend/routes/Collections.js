@@ -8,12 +8,13 @@ const router = express.Router();
 // POST /api/collections/
 router.post('/', async (req, res) => {
   try {
-    const { name, owner } = req.body;
+    const {  name, code, email } = req.body;
 
     // Create collection (empty games list by default)
     const newCollection = new Collection({
       name: name || "Untitled Collection",
-      owner: owner || null,
+      code,
+      members: email ? [email] : [],
       games: []
     });
 
@@ -120,6 +121,41 @@ router.delete('/:collectionId/games/:gameId', async (req, res) => {
   } catch (err) {
     console.error('Error removing game from collection:', err);
     res.status(500).json({ error: 'Failed to remove game from collection' });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const { email } = req.query;
+    let query = {};
+    if (email) {
+      query.members = email;
+    }
+    const collections = await Collection.find(query);
+    res.json(collections);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch collections" });
+  }
+});
+
+// join
+router.post("/join", async (req, res) => {
+  try {
+    const { code, email } = req.body;
+
+    const collection = await Collection.findOne({ code });
+    if (!collection) {
+      return res.status(404).json({ error: "Invalid code" });
+    }
+
+    if (!collection.members.includes(email)) {
+      collection.members.push(email);
+      await collection.save();
+    }
+
+    res.json(collection);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to join collection" });
   }
 });
 
