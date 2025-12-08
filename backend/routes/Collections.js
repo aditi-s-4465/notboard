@@ -74,6 +74,7 @@ router.post('/:collectionId/games', async (req, res) => {
     const alreadyInCollection = collection.games.some(
       (g) => g.game.toString() === gameId
     );
+    
     if (alreadyInCollection) {
       return res.status(400).json({ error: 'Game already in collection' });
     }

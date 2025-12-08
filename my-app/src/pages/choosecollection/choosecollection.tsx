@@ -1,21 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Card,
-  CardActionArea,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  IconButton,
-  Divider,
-  Alert,
+  AppBar, Toolbar, Typography, Container, Card, CardActionArea, CardContent,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button,
+  IconButton, Divider, Alert, CircularProgress, Box
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -24,47 +11,53 @@ import "./choosecollection.css";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/useappcontext";
 
-type Collection = {
-  id: string;
+type BackendCollection = {
+  _id: string;
   name: string;
   code: string;
+  members: string[];
 };
-
-const initialCollections: Collection[] = [
-  { id: "c1", name: "Collection 1", code: "aditi12" },
-  { id: "c2", name: "Collection 2", code: "rose11" },
-  { id: "c3", name: "Collection 3", code: "erica54" },
-];
 
 const Choosecollection: React.FC = () => {
   const navigate = useNavigate();
-  const { setCollection, setEmail } = useAppContext();
+  const { setCollection, setEmail, email } = useAppContext();
 
-  const [collections, setCollections] =
-    useState<Collection[]>(initialCollections);
+  const [collections, setCollections] = useState<BackendCollection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
-  
-  const [error, setError] = useState("");
+  const [dialogError, setDialogError] = useState("");
 
-  const handleSelectCollection = (col: Collection) => {
+  useEffect(() => {
+    if (!email) {
+      navigate("/");
+      return;
+    }
+
+    const fetchCollections = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/collections?email=${email}`);
+        if (!res.ok) throw new Error("Failed to load collections");
+        const data = await res.json();
+        setCollections(data);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Could not connect to server.");
+        setLoading(false);
+      }
+    };
+
+    fetchCollections();
+  }, [email, navigate]);
+
+  const handleSelectCollection = (col: BackendCollection) => {
     setCollection(col.name);
     navigate("/showcollection");
-  };
-
-  const handleOpenDialog = () => {
-    setError("");
-    setDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-    setJoinCode("");
-    setNewName("");
-    setNewCode("");
-    setError("");
   };
 
   const handleLogout = () => {
@@ -73,41 +66,80 @@ const Choosecollection: React.FC = () => {
     navigate("/"); 
   };
 
-  const handleAddCollection = () => {
+  const handleOpenDialog = () => {
+    setDialogError("");
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setJoinCode("");
+    setNewName("");
+    setNewCode("");
+    setDialogError("");
+  };
+
+  const handleConfirmAction = async () => {
     const nameInput = newName.trim();
-    const codeInput = joinCode.trim();
-    const newCodeInput = newCode.trim();
-
-    if (!nameInput && !codeInput) {
-      setError("Please enter a Collection Name to create, or a Code to join.");
-      return;
+    const joinCodeInput = joinCode.trim();
+    const createCodeInput = newCode.trim();
+    if (joinCodeInput && !nameInput && !createCodeInput) {
+    } 
+    else if (nameInput && createCodeInput && !joinCodeInput) {
+    } 
+    else {
+        setDialogError("Please fill out 'Code to Join' OR both 'Name' and 'New Code' to create.");
+        return;
     }
 
-    let finalName = nameInput;
-    let finalCode = newCodeInput;
+    try {
+      if (joinCodeInput) {
+        const res = await fetch("http://localhost:5000/api/collections/join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: joinCodeInput, email })
+        });
+        
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || "Invalid code");
+        }
+        const joinedCol = await res.json();
+        setCollections(prev => [...prev, joinedCol]);
+        setCollection(joinedCol.name);
 
-    if (!finalName && codeInput) {
-      finalName = `Collection ${collections.length + 1}`;
-      finalCode = codeInput;
+      } else {
+        const res = await fetch("http://localhost:5000/api/collections", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                name: nameInput, 
+                code: createCodeInput, 
+                email 
+            })
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to create. Code might be taken.");
+        }
+        const newCol = await res.json();
+        setCollections(prev => [...prev, newCol]);
+        setCollection(newCol.name);
+      }
+
+      handleCloseDialog();
+      navigate("/showcollection");
+
+    } catch (err: any) {
+      setDialogError(err.message || "Action failed");
     }
-
-    const newCollection: Collection = {
-      id: `c-${Date.now()}`,
-      name: finalName,
-      code: finalCode || "N/A",
-    };
-
-    setCollections((prev) => [...prev, newCollection]);
-    setCollection(newCollection.name);
-    handleCloseDialog();
-    navigate("/showcollection");
   };
 
   return (
     <>
-      <AppBar position="static" color="default" elevation={1}>
+      <AppBar position="static" color="default" elevation={0} className="app-bar">
         <Toolbar>
-          <Typography variant="h6" component="div" className="navbar-title">
+          <Typography variant="h5" component="div" className="navbar-title">
             Not Board
           </Typography>
           <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
@@ -116,126 +148,96 @@ const Choosecollection: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" className="choose-collection-root">
-        <div className="choose-main">
-          <Typography variant="h5" className="choose-title" gutterBottom>
-            Choose a Collection
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            className="choose-description"
-          >
-            Select an existing collection or create a new one to start managing
-            your board games.
-          </Typography>
+      <div className="choose-page-wrapper">
+        <Container maxWidth="lg" className="choose-collection-container">
+          <div className="choose-header-section">
+            <Typography variant="h3" className="choose-title">
+              Your Collections
+            </Typography>
+            <Typography variant="h6" className="choose-description">
+              Select a dashboard to manage your board games or start a new group.
+            </Typography>
+          </div>
 
-          <div className="collection-cards-row">
-            {collections.map((col) => (
-              <Card key={col.id} className="collection-card">
-                <CardActionArea
-                  className="collection-card-action"
-                  onClick={() => handleSelectCollection(col)}
-                >
+          {error && <Alert severity="error" className="error-alert">{error}</Alert>}
+
+          {loading ? <CircularProgress className="loading-spinner" /> : (
+            <div className="collection-cards-grid">
+              {collections.map((col) => (
+                <Card key={col._id} className="collection-card">
+                  <CardActionArea className="collection-card-action" onClick={() => handleSelectCollection(col)}>
+                    <CardContent className="collection-card-content">
+                      <div className="card-icon-placeholder">{col.name.charAt(0).toUpperCase()}</div>
+                      <Typography variant="h5" className="collection-card-title">{col.name}</Typography>
+                      <Box className="code-badge">
+                        Code: {col.code}
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              ))}
+
+              <Card className="collection-card new-collection-card">
+                <CardActionArea className="collection-card-action" onClick={handleOpenDialog}>
                   <CardContent className="collection-card-content">
-                    <Typography
-                      variant="subtitle1"
-                      align="center"
-                      className="collection-card-title"
-                    >
-                      {col.name}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      align="center"
-                      color="text.secondary"
-                      className="collection-card-code"
-                      display="block"
-                    >
-                      Code: {col.code}
-                    </Typography>
+                    <div className="collection-new-inner">
+                      <div className="plus-icon-circle">
+                        <AddIcon fontSize="large" />
+                      </div>
+                      <Typography variant="h6" className="collection-new-text">Create or Join</Typography>
+                    </div>
                   </CardContent>
                 </CardActionArea>
               </Card>
-            ))}
+            </div>
+          )}
+        </Container>
+      </div>
 
-            <Card className="collection-card">
-              <CardActionArea
-                className="collection-card-action"
-                onClick={handleOpenDialog}
-              >
-                <CardContent className="collection-card-content">
-                  <div className="collection-new-inner">
-                    <AddIcon fontSize="large" />
-                    <Typography variant="subtitle1" align="center">
-                      New Collection
-                    </Typography>
-                  </div>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </div>
-        </div>
-      </Container>
-
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        PaperProps={{ className: "choose-dialog-paper" }}
-      >
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} PaperProps={{ className: "choose-dialog-paper" }}>
         <DialogTitle className="choose-dialog-title">
           <div className="choose-dialog-title-row">
-            <IconButton
-              size="small"
-              onClick={handleCloseDialog}
-              className="choose-dialog-close-button"
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-            <Typography variant="subtitle1">Add Collection</Typography>
+            <IconButton size="small" onClick={handleCloseDialog} className="choose-dialog-close-button"><CloseIcon fontSize="small" /></IconButton>
+            <Typography variant="h6" style={{ fontWeight: 'bold' }}>Add Collection</Typography>
           </div>
         </DialogTitle>
 
         <DialogContent className="choose-dialog-content">
-          {error && (
-            <Alert severity="error" className="error-alert">
-              {error}
-            </Alert>
-          )}
-
+          {dialogError && <Alert severity="error" className="error-alert">{dialogError}</Alert>}
           <div className="choose-dialog-fields">
-            <TextField
-              label="Collection Code"
-              placeholder="Join existing collection"
-              size="small"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              fullWidth
+            <TextField 
+                label="Enter Code to Join" 
+                placeholder="e.g. existing-code" 
+                size="medium" 
+                value={joinCode} 
+                onChange={(e) => setJoinCode(e.target.value)} 
+                fullWidth 
+                disabled={newName.length > 0 || newCode.length > 0}
             />
-
-            <Divider className="choose-dialog-divider">or</Divider>
-
-            <TextField
-              label="New Collection Name"
-              size="small"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              fullWidth
+            
+            <Divider className="choose-dialog-divider">OR CREATE NEW</Divider>
+            
+            <TextField 
+                label="New Collection Name" 
+                size="medium" 
+                value={newName} 
+                onChange={(e) => setNewName(e.target.value)} 
+                fullWidth 
+                disabled={joinCode.length > 0}
             />
-            <TextField
-              label="New Collection Code"
-              size="small"
-              value={newCode}
-              onChange={(e) => setNewCode(e.target.value)}
-              fullWidth
+            <TextField 
+                label="New Collection Code" 
+                size="medium" 
+                value={newCode} 
+                onChange={(e) => setNewCode(e.target.value)} 
+                fullWidth 
+                disabled={joinCode.length > 0}
             />
           </div>
         </DialogContent>
 
         <DialogActions className="choose-dialog-actions">
-          <Button variant="contained" fullWidth onClick={handleAddCollection}>
-            Add Collection
-          </Button>
+          <Button variant="contained" fullWidth size="large" onClick={handleConfirmAction} style={{ fontWeight: 'bold' }}>Confirm</Button>
         </DialogActions>
       </Dialog>
     </>
