@@ -50,7 +50,6 @@ const Showcollection: React.FC = () => {
   const [minPlayers, setMinPlayers] = useState<number | "">("");
   const [maxPlayers, setMaxPlayers] = useState<number | "">("");
 
-  // modal &dialog states
   const [showDetails, setShowDetails] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState<string | null>(null);
@@ -62,7 +61,7 @@ const Showcollection: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
-  // fetch
+  //fetch
   useEffect(() => {
     if (!collection) return;
 
@@ -86,12 +85,18 @@ const Showcollection: React.FC = () => {
             const detailRes = await fetch(`https://notboard.onrender.com/api/collections/${targetCol._id}`);
             const detailData = await detailRes.json();
             
+            const genreCounts: { [key: string]: number } = {};
+
             const mappedGames: FrontendGame[] = detailData.games.map((item: any) => {
                 const g = item.game;
                 let primaryGenre = "General";
+                
                 Object.keys(g).forEach(k => { 
                     if(k.startsWith("Cat:") && g[k]===1) primaryGenre = k.replace("Cat:", ""); 
                 });
+
+                // count genre for recommendations logic later
+                genreCounts[primaryGenre] = (genreCounts[primaryGenre] || 0) + 1;
 
                 return {
                     id: g._id,
@@ -110,24 +115,42 @@ const Showcollection: React.FC = () => {
             
             const ownedIds = new Set(mappedGames.map(mg => mg.id));
             
-            const recs = allGames
-                .filter((g: any) => !ownedIds.has(g._id))
-                .sort((a: any, b: any) => b.AvgRating - a.AvgRating)
-                .slice(0, 3)
+            const candidates = allGames
+                .filter((g: any) => !ownedIds.has(g._id)) //exclude owned
                 .map((g: any) => {
                     let genre = "General";
                     Object.keys(g).forEach(k => { if(k.startsWith("Cat:") && g[k]===1) genre = k.replace("Cat:", ""); });
                     
+                    const genrePreferenceScore = genreCounts[genre] || 0;
+
                     return { 
                         id: g._id, 
                         name: g.Name,
                         image: g.ImagePath,
-                        rating: Number(g.AvgRating).toFixed(1),
-                        genre: genre
+                        rating: Number(g.AvgRating),
+                        ratingDisplay: Number(g.AvgRating).toFixed(1),
+                        genre: genre,
+                        score: genrePreferenceScore
                     };
                 });
 
-            setRecommendations(recs);
+            //sort with genre match count and then rating
+            candidates.sort((a: any, b: any) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score; //popular genre first
+                }
+                return b.rating - a.rating;
+            });
+
+            //choose top 3
+            setRecommendations(candidates.slice(0, 3).map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                image: c.image,
+                rating: c.ratingDisplay,
+                genre: c.genre
+            })));
+
             setLoading(false);
 
         } catch (err) {
@@ -349,7 +372,7 @@ const Showcollection: React.FC = () => {
                 </div>
 
                 <div className="show-main-bottom">
-                  <Typography className="show-reco-title">Recommended For You</Typography>
+                  <Typography className="show-reco-title">Recommended For You (Based on your Collection)</Typography>
                   <div className="show-reco-grid">
                     {recommendations.map((rec) => (
                       <div key={rec.id} className="reco-card" onClick={() => handleOpenDetails(rec.id)}>
