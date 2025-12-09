@@ -17,7 +17,7 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ open, onClose }) =>
     useEffect(() => {
         if (open && selectedGameName) {
             setLoading(true);
-            fetch(`http://localhost:5000/api/games/${selectedGameName}`)
+            fetch(`https://notboard.onrender.com/api/games/${selectedGameName}`)
                 .then(res => res.json())
                 .then(data => {
                     setGameData(data);

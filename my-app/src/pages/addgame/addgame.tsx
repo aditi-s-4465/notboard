@@ -55,11 +55,11 @@ function Addgame() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const gamesRes = await fetch("http://localhost:5000/api/games");
+                const gamesRes = await fetch("https://notboard.onrender.com/api/games");
                 if (!gamesRes.ok) throw new Error("Failed to connect to server");
                 const gamesData: BackendGame[] = await gamesRes.json();
 
-                const colRes = await fetch(`http://localhost:5000/api/collections?email=${email}`);
+                const colRes = await fetch(`https://notboard.onrender.com/api/collections?email=${email}`);
                 const colData = await colRes.json();
                 const targetCol = colData.find((c: any) => c.name === collection);
                 
@@ -124,7 +124,7 @@ function Addgame() {
         if (!selectedGameId || !collection) return;
 
         try {
-            const colRes = await fetch(`http://localhost:5000/api/collections?email=${email}`);
+            const colRes = await fetch(`https://notboard.onrender.com/api/collections?email=${email}`);
             const allCollections = await colRes.json();
             const targetCol = allCollections.find((c: any) => c.name === collection);
 
@@ -135,7 +135,7 @@ function Addgame() {
                 return;
             }
 
-            const response = await fetch(`http://localhost:5000/api/collections/${targetCol._id}/games`, {
+            const response = await fetch(`https://notboard.onrender.com/api/collections/${targetCol._id}/games`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

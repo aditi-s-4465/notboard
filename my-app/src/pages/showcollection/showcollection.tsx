@@ -70,7 +70,7 @@ const Showcollection: React.FC = () => {
         try {
             if (refreshTrigger === 0) setLoading(true);
             
-            const colListRes = await fetch(`http://localhost:5000/api/collections?email=${email}`);
+            const colListRes = await fetch(`https://notboard.onrender.com/api/collections?email=${email}`);
             const colList = await colListRes.json();
             const targetCol = colList.find((c: any) => c.name === collection);
 
@@ -83,7 +83,7 @@ const Showcollection: React.FC = () => {
             setCollectionCode(targetCol.code);
             setMembers(targetCol.members);
 
-            const detailRes = await fetch(`http://localhost:5000/api/collections/${targetCol._id}`);
+            const detailRes = await fetch(`https://notboard.onrender.com/api/collections/${targetCol._id}`);
             const detailData = await detailRes.json();
             
             const mappedGames: FrontendGame[] = detailData.games.map((item: any) => {
@@ -105,7 +105,7 @@ const Showcollection: React.FC = () => {
             });
             setCurrentGames(mappedGames);
 
-            const allGamesRes = await fetch(`http://localhost:5000/api/games`);
+            const allGamesRes = await fetch(`https://notboard.onrender.com/api/games`);
             const allGames = await allGamesRes.json();
             
             const ownedIds = new Set(mappedGames.map(mg => mg.id));
@@ -160,7 +160,7 @@ const Showcollection: React.FC = () => {
     if (!gameToAdd || !collectionId) return;
 
     try {
-        const response = await fetch(`http://localhost:5000/api/collections/${collectionId}/games`, {
+        const response = await fetch(`https://notboard.onrender.com/api/collections/${collectionId}/games`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -199,7 +199,7 @@ const Showcollection: React.FC = () => {
   const confirmDelete = async () => {
     if (gameToDelete && collectionId) {
         try {
-            await fetch(`http://localhost:5000/api/collections/${collectionId}/games/${gameToDelete}`, {
+            await fetch(`https://notboard.onrender.com/api/collections/${collectionId}/games/${gameToDelete}`, {
                 method: 'DELETE'
             });
             setSnackbarMessage("Game removed from collection.");

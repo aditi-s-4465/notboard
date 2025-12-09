@@ -40,7 +40,7 @@ const Choosecollection: React.FC = () => {
 
     const fetchCollections = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/collections?email=${email}`);
+        const res = await fetch(`https://notboard.onrender.com/api/collections?email=${email}`);
         if (!res.ok) throw new Error("Failed to load collections");
         const data = await res.json();
         setCollections(data);
@@ -94,7 +94,7 @@ const Choosecollection: React.FC = () => {
 
     try {
       if (joinCodeInput) {
-        const res = await fetch("http://localhost:5000/api/collections/join", {
+        const res = await fetch("https://notboard.onrender.com/api/collections/join", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: joinCodeInput, email })
@@ -109,7 +109,7 @@ const Choosecollection: React.FC = () => {
         setCollection(joinedCol.name);
 
       } else {
-        const res = await fetch("http://localhost:5000/api/collections", {
+        const res = await fetch("https://notboard.onrender.com/api/collections", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

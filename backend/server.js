@@ -7,7 +7,10 @@ import routes from "./routes/index.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+    origin: "*", // for deployment
+}));
 app.use(express.json());
 
 // Connect to MongoDB
