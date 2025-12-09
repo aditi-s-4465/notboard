@@ -1,25 +1,29 @@
+image: node:20
+
 stages:
   - build
   - deploy
 
 cache:
   paths:
-    - node_modules/
+    - my-app/node_modules/
 
 build:
-  image: node:18
   stage: build
   script:
+    - cd my-app
     - npm install
     - npm run build
   artifacts:
     paths:
-      - build/
+      - my-app/build/
 
 pages:
   stage: deploy
   script:
-    - mv build public
+    - cd my-app
+    - npm run build
+    - cp -r build public
   artifacts:
     paths:
       - public
