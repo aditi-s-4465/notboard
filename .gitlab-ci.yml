@@ -1,0 +1,14 @@
+image: node:20
+
+pages:
+  stage: deploy
+  script:
+    - cd my-app
+    - npm install
+    - npm run build
+    - mv dist ../public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
