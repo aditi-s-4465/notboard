@@ -4,10 +4,6 @@ stages:
   - build
   - deploy
 
-cache:
-  paths:
-    - my-app/node_modules/
-
 build:
   stage: build
   script:
@@ -16,14 +12,15 @@ build:
     - npm run build
   artifacts:
     paths:
-      - my-app/build/
+      - my-app/build
 
 pages:
   stage: deploy
+  dependencies:
+    - build
   script:
-    - cd my-app
-    - npm run build
-    - cp -r build public
+    - rm -rf public
+    - mv my-app/build public
   artifacts:
     paths:
       - public
