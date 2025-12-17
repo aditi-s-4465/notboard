@@ -4,4 +4,4 @@ NotBoard centralizes your group’s full game collection in one place, helping y
 
 Check out the deployed site here: https://notboard-cee1dc.gitlab.io/#/
 
-This project won *most ready to ship product to market* in our class's competition!
+This project won *Most Ready to Ship Product to Market* in our class's competition!
